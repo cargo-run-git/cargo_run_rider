@@ -1,0 +1,14 @@
+/build
+./build
+build
+
+.dart_tool
+
+# Android
+android/local.properties
+
+# Lib
+/lib/config
+
+# Environment
+.env
