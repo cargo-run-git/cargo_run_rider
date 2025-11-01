@@ -15,4 +15,7 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
+    <string name="app_name">Cargo Run Rider</string>
+    <string name="cargo_run_channel">Cargo Run Service</string>
 </resources>
+

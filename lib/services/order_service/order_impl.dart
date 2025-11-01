@@ -64,49 +64,101 @@ class OrderImpl implements OrderService {
     }
   }
 
+
   @override
-  Future<ApiRes> acceptRejectOrder(
-    String orderId,
-    String value,
-  ) async {
-    var url = Uri.parse('$baseUrl/order/$orderId');
+Future<ApiRes> acceptRejectOrder(
+  String orderId,
+  String value,
+) async {
+  var url = Uri.parse('$baseUrl/order/$orderId');
 
-    var headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${sharedPrefs.token}',
-    };
-    var body = jsonEncode({"status": value});
+  var headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ${sharedPrefs.token}',
+  };
+  var body = jsonEncode({"status": value});
 
-    try {
-      final response = await http.patch(
-        url,
-        headers: headers,
-        body: body,
-      );
-      var jsonResponse = jsonDecode(response.body);
-      // log("accept order jsonResponse:$jsonResponse");
-      log("accept order jsonResponse:${response.statusCode}");
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiRes(
-          statusCode: response.statusCode,
-          isError: false,
-          data: jsonResponse,
-        );
-      } else {
-        return ApiRes(
-          statusCode: response.statusCode,
-          isError: true,
-          data: jsonResponse,
-        );
-      }
-    } catch (e) {
+  try {
+    log("Sending PATCH to: $url");
+    log("Headers: $headers");
+    log("Body: $body");
+
+    final response = await http.patch(
+      url,
+      headers: headers,
+      body: body,
+    );
+
+    log("Response status: ${response.statusCode}");
+    log("Response body: ${response.body}");
+
+    var jsonResponse = jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 201) {
       return ApiRes(
-        statusCode: 500,
+        statusCode: response.statusCode,
+        isError: false,
+        data: jsonResponse,
+      );
+    } else {
+      return ApiRes(
+        statusCode: response.statusCode,
         isError: true,
-        data: e,
+        data: jsonResponse,
       );
     }
+  } catch (e) {
+    return ApiRes(
+      statusCode: 500,
+      isError: true,
+      data: e,
+    );
   }
+}
+
+
+  // @override
+  // Future<ApiRes> acceptRejectOrder(
+  //   String orderId,
+  //   String value,
+  // ) async {
+  //   var url = Uri.parse('$baseUrl/order/$orderId');
+
+  //   var headers = {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': 'Bearer ${sharedPrefs.token}',
+  //   };
+  //   var body = jsonEncode({"status": value});
+
+  //   try {
+  //     final response = await http.patch(
+  //       url,
+  //       headers: headers,
+  //       body: body,
+  //     );
+  //     var jsonResponse = jsonDecode(response.body);
+  //     // log("accept order jsonResponse:$jsonResponse");
+  //     log("accept order jsonResponse:${response.statusCode}");
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       return ApiRes(
+  //         statusCode: response.statusCode,
+  //         isError: false,
+  //         data: jsonResponse,
+  //       );
+  //     } else {
+  //       return ApiRes(
+  //         statusCode: response.statusCode,
+  //         isError: true,
+  //         data: jsonResponse,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     return ApiRes(
+  //       statusCode: 500,
+  //       isError: true,
+  //       data: e,
+  //     );
+  //   }
+  // }
 
   @override
   Future<ApiRes> postRiderLocationWithOrderId(

@@ -37,10 +37,10 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
   void setData() {
     final profileVM = context.read<AuthProvider>();
     if (profileVM.user != null) {
-      _vehicleType.text = profileVM.user!.vehicle!.vehicleType!;
-      _vehicleBrand.text = profileVM.user!.vehicle!.brand!;
-      _plateNumber.text = profileVM.user!.vehicle!.plateNumber!;
-      _driverLicence.text = profileVM.user!.vehicle!.image!;
+      _vehicleType.text = profileVM.user!.vehicle?.vehicleType ?? "";
+      _vehicleBrand.text = profileVM.user!.vehicle?.brand ?? "";
+      _plateNumber.text = profileVM.user!.vehicle?.plateNumber ?? "";
+      _driverLicence.text = profileVM.user!.vehicle?.image ?? "";
     }
   }
 

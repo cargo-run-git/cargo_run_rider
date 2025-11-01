@@ -8,164 +8,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'dart:developer' as dev;
 
-// final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//     FlutterLocalNotificationsPlugin();
-
-// void initializeService(
-//     String orderId, String userId, String orderStatus) async {
-//   final service = FlutterBackgroundService();
-
-//   await service.configure(
-//     androidConfiguration: AndroidConfiguration(
-//       onStart: onStart,
-//       isForegroundMode: true,
-//       autoStart: true,
-//     ),
-//     iosConfiguration: IosConfiguration(),
-//   );
-
-//   service.startService();
-//   service.invoke("setIds", {
-//     "orderId": orderId,
-//     "userId": userId,
-//     "orderStatus": orderStatus,
-//   });
-// }
-
-// @pragma('vm:entry-point')
-// void onStart(ServiceInstance service) async {
-//   DartPluginRegistrant.ensureInitialized();
-
-//   io.Socket socket = io.io(baseUrlSocket, <String, dynamic>{
-//     'transports': ['websocket'],
-//     'autoConnect': true,
-//     'forceNew': true,
-//   });
-
-//   socket.connect();
-
-//   String? orderId;
-//   String? userId;
-//   String? orderStatus;
-
-//   service.on("setIds").listen((event) {
-//     orderId = event!["orderId"];
-//     userId = event["userId"];
-//     orderStatus = event["orderStatus"];
-//   });
-
-//   if (service is AndroidServiceInstance) {
-//     service.setAsForegroundService();
-//   }
-
-//   const LocationSettings locationSettings = LocationSettings(
-//     accuracy: LocationAccuracy.high,
-//     distanceFilter: 10,
-//   );
-
-//   Geolocator.getPositionStream(locationSettings: locationSettings)
-//       .listen((Position position) {
-//     log("Background Location: ${position.latitude}, ${position.longitude}");
-
-//     if (orderId != null && userId != null && socket.connected) {
-//       if (orderStatus == "picked" ||
-//           orderStatus == "accepted" ||
-//           orderStatus == "arrived") {
-//         socket.emit("rider-location", {
-//           "lat": position.latitude,
-//           "lng": position.longitude,
-//           "orderId": orderId,
-//           "userId": userId,
-//         });
-//       }
-//     }
-//   });
-//   socket.onAny(
-//     (event, data) {
-//       log("event in server:$event, data in service:$data");
-//     },
-//   );
-// }
-
-
-
-
-
-// DO NOT import flutter_background_service_android or UI-based plugins here
-
-// @pragma('vm:entry-point')
-// void onStart(ServiceInstance service) async {
-//   DartPluginRegistrant.ensureInitialized();
-
-//   String? orderId;
-//   String? userId;
-//   String? orderStatus;
-
-//   late io.Socket socket;
-
-//   void connectSocket() {
-//     socket = io.io(baseUrlSocket, <String, dynamic>{
-//       'transports': ['websocket'],
-//       'autoConnect': true,
-//       'forceNew': true,
-//     });
-
-//     socket.onConnect((_) {
-//       log('[BackgroundService] Socket connected');
-//     });
-
-//     socket.onDisconnect((_) {
-//       log('[BackgroundService] Socket disconnected');
-//     });
-
-//     socket.onAny((event, data) {
-//       log('[Socket] $event => $data');
-//     });
-//   }
-
-//   connectSocket();
-
-//   service.on("setIds").listen((event) {
-//     orderId = event!["orderId"];
-//     userId = event["userId"];
-//     orderStatus = event["orderStatus"];
-//   });
-
-//   if (service is AndroidServiceInstance) {
-//     service.setAsForegroundService();
-//   }
-
-//   const LocationSettings locationSettings = LocationSettings(
-//     accuracy: LocationAccuracy.high,
-//     distanceFilter: 10,
-//   );
-
-//   Geolocator.getPositionStream(locationSettings: locationSettings)
-//       .listen((Position position) {
-//     log("📍 [BG Location] ${position.latitude}, ${position.longitude}");
-
-//     if (socket.connected && orderId != null && userId != null) {
-//       if (orderStatus == "picked" ||
-//           orderStatus == "accepted" ||
-//           orderStatus == "arrived") {
-//         socket.emit("rider-location", {
-//           "lat": position.latitude,
-//           "lng": position.longitude,
-//           "orderId": orderId,
-//           "userId": userId,
-//         });
-//       }
-//       dev.log("socket--here:${socket}");
-//     }
-//   });
-// }
-
-
-
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
-  // DartPluginRegistrant.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
 
   String? orderId;
   String? userId;
@@ -173,18 +19,42 @@ void onStart(ServiceInstance service) async {
 
   final socket = io.io(baseUrlSocket, {
     'transports': ['websocket'],
-    'autoConnect': true,
+    'autoConnect': false,
     'forceNew': true,
   });
 
-  socket.connect();
+  // 🔹 Listen for foreground/background events
+  if (service is AndroidServiceInstance) {
+    service.on('setAsForeground').listen((event) {
+      service.setForegroundNotificationInfo(
+        title: "Rider Location Service",
+        content: "Tracking your live location...",
+      );
+    });
 
+    service.on('setAsBackground').listen((event) {
+      // Handle background downgrade if needed
+    });
+  }
+
+  // 🔹 Listen for custom IDs from main isolate
   service.on("setIds").listen((event) {
-    orderId = event!["orderId"];
-    userId = event["userId"];
-    orderStatus = event["orderStatus"];
+    orderId = event?["orderId"];
+    userId = event?["userId"];
+    orderStatus = event?["orderStatus"];
+
+    if (orderId != null && userId != null) {
+      if (!socket.connected) {
+        socket.connect();
+      }
+    }
   });
 
+  // 🔹 Socket handling
+  socket.onConnect((_) => dev.log("✅ Socket connected in background isolate"));
+  socket.onDisconnect((_) => dev.log("⚠️ Socket disconnected"));
+
+  // 🔹 Location updates
   const locationSettings = LocationSettings(
     accuracy: LocationAccuracy.high,
     distanceFilter: 5,
@@ -192,12 +62,12 @@ void onStart(ServiceInstance service) async {
 
   Geolocator.getPositionStream(locationSettings: locationSettings).listen(
     (Position position) {
-      dev.  log("Background Location: ${position.latitude}, ${position.longitude}");
+      dev.log("📍 Background Location: ${position.latitude}, ${position.longitude}");
+
       if (orderId != null &&
           userId != null &&
           socket.connected &&
-          ["accepted", "picked", "arrived"]
-              .contains(orderStatus?.toLowerCase())) {
+          ["accepted", "picked", "arrived"].contains(orderStatus?.toLowerCase())) {
         socket.emit("rider-location", {
           "lat": position.latitude,
           "lng": position.longitude,
@@ -205,8 +75,9 @@ void onStart(ServiceInstance service) async {
           "userId": userId,
         });
 
-        dev.log("socket--here:${socket}");
+        dev.log("✅ Location sent via socket: ${position.latitude}, ${position.longitude}");
       }
     },
   );
 }
+

@@ -107,7 +107,63 @@ class _TripRoutePageState extends State<TripRoutePage> {
     }
   }
 
-  void initializeServiceAndroid(
+  // void initializeServiceAndroid(
+  //   String orderId,
+  //   String userId,
+  //   String orderStatus,
+  // ) async {
+  //   final service = FlutterBackgroundService();
+
+  //   await service.configure(
+  //     androidConfiguration: AndroidConfiguration(
+  //       onStart: onStart,
+  //       isForegroundMode: true,
+  //       autoStart: true,
+  //     ),
+  //     iosConfiguration: IosConfiguration(),
+  //   );
+
+  //   await service.startService();
+  //   service.invoke("setIds", {
+  //     "orderId": orderId,
+  //     "userId": userId,
+  //     "orderStatus": orderStatus,
+  //   });
+  // }
+
+  // Future<void> initializeServiceAndroid(
+  //   String orderId,
+  //   String userId,
+  //   String orderStatus,
+  // ) async {
+  //   final service = FlutterBackgroundService();
+
+  //   await service.configure(
+  //     androidConfiguration: AndroidConfiguration(
+  //       onStart: onStart, // must point to the top-level function above
+  //       isForegroundMode: true,
+  //       autoStart: false, // set to false; you’ll start it manually below
+  //       notificationChannelId: 'cargo_run_channel',
+  //       initialNotificationTitle: 'CargoRun Active',
+  //       initialNotificationContent: 'Preparing tracking service...',
+  //       foregroundServiceNotificationId: 999,
+  //     ),
+  //     iosConfiguration: IosConfiguration(),
+  //   );
+
+  //   // Now safely start it
+  //   await service.startService();
+  //   service.invoke('setAsForeground');
+
+  //   // Once started, send data to the service isolate
+  //   service.invoke("setIds", {
+  //     "orderId": orderId,
+  //     "userId": userId,
+  //     "orderStatus": orderStatus,
+  //   });
+  // }
+
+  Future<void> initializeServiceAndroid(
     String orderId,
     String userId,
     String orderStatus,
@@ -118,12 +174,21 @@ class _TripRoutePageState extends State<TripRoutePage> {
       androidConfiguration: AndroidConfiguration(
         onStart: onStart,
         isForegroundMode: true,
-        autoStart: true,
+        autoStart: false,
+        notificationChannelId: 'cargo_run_channel',
+        initialNotificationTitle: 'Cargo Run Active',
+        initialNotificationContent: 'Tracking your delivery in background',
+        foregroundServiceNotificationId: 999,
+        // ✅ Corrected parameter
+        foregroundServiceTypes: [AndroidForegroundType.location],
       ),
       iosConfiguration: IosConfiguration(),
     );
 
     await service.startService();
+
+    service.invoke('setAsForeground');
+
     service.invoke("setIds", {
       "orderId": orderId,
       "userId": userId,

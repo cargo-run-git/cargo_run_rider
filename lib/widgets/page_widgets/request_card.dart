@@ -61,26 +61,60 @@ class _RequestCardState extends State<RequestCard> {
     });
   }
 
-  void initializeServiceAndroind(
-      String orderId, String userId, String orderStatus) async {
+  // void initializeServiceAndroind(
+  //     String orderId, String userId, String orderStatus) async {
+  //   final service = FlutterBackgroundService();
+
+  //   await service.configure(
+  //     androidConfiguration: AndroidConfiguration(
+  //       onStart: onStart,
+  //       isForegroundMode: true,
+  //       autoStart: true,
+  //     ),
+  //     iosConfiguration: IosConfiguration(),
+  //   );
+
+  //   await service.startService();
+  //   service.invoke("setIds", {
+  //     "orderId": orderId,
+  //     "userId": userId,
+  //     "orderStatus": orderStatus,
+  //   });
+  // }
+
+  Future<void> initializeServiceAndroid(
+    String orderId,
+    String userId,
+    String orderStatus,
+  ) async {
     final service = FlutterBackgroundService();
 
     await service.configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onStart,
         isForegroundMode: true,
-        autoStart: true,
+        autoStart: false,
+        notificationChannelId: 'cargo_run_channel',
+        initialNotificationTitle: 'Cargo Run Active',
+        initialNotificationContent: 'Tracking your delivery in background',
+        foregroundServiceNotificationId: 999,
+        // ✅ Corrected parameter
+        foregroundServiceTypes: [AndroidForegroundType.location],
       ),
       iosConfiguration: IosConfiguration(),
     );
 
     await service.startService();
+
+    service.invoke('setAsForeground');
+
     service.invoke("setIds", {
       "orderId": orderId,
       "userId": userId,
       "orderStatus": orderStatus,
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +288,7 @@ class _RequestCardState extends State<RequestCard> {
                   textColor: Colors.white,
                   backgroundColor: primaryColor1,
                   onPressed: () async {
+                    print("CLICK CLICK TRYING TO ACCEPT ORDER");
                     setState(() {
                       selectedId = widget.order.id!;
                     });
