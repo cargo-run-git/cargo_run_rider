@@ -50,6 +50,21 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  // void _showLocationDisclosureSheet() {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.white,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+  //     ),
+  //     builder: (context) => const LocationDisclosureScreen(),
+  //   ).then((_) {
+  //     // When they close the sheet, go to Home
+  //     navigateToHome();
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,7 +160,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                             (value) => {
                                               if (watch.authState ==
                                                   AuthState.authenticated)
-                                                {navigateToHome()}
+                                                {
+                                                  // navigateToDisclosure()
+                                                  navigateToHome()
+
+                                                  /////////////////////////////////////////////////////////
+                                                  /// UNCOMMENT IF ACCESS BACKGROUND LOCATION IS REQUIRED
+                                                  ///////////////////////////////////////////////////////// 
+                                                  // if (!sharedPrefs
+                                                  //     .hasSeenLocationDisclosure)
+                                                  //   {
+                                                  //     sharedPrefs
+                                                  //             .hasSeenLocationDisclosure =
+                                                  //         true,
+                                                  //     _showLocationDisclosureSheet(),
+                                                  //   }
+                                                  // else
+                                                  //   {
+                                                  //     navigateToHome(),
+                                                  //   }
+                                                }
                                               else
                                                 {
                                                   showSnackBar(
@@ -167,43 +201,43 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 );
                         }),
-                        // const SizedBox(height: 20.0),
-                        // Align(
-                        //   alignment: Alignment.center,
-                        //   child: RichText(
-                        //     text: TextSpan(
-                        //       text: "Don't have an account? ",
-                        //       style: const TextStyle(
-                        //         color: greyText,
-                        //         fontSize: 18.0,
-                        //         fontWeight: FontWeight.w500,
-                        //       ),
-                        //       children: [
-                        //         TextSpan(
-                        //           recognizer: TapGestureRecognizer()
-                        //             ..onTap = () {
-                        //               context
-                        //                   .read<AuthProvider>()
-                        //                   .setAuthState(AuthState.initial);
-                        //               Navigator.push(
-                        //                 context,
-                        //                 MaterialPageRoute(
-                        //                   builder: (context) =>
-                        //                       const RegisterScreen(),
-                        //                 ),
-                        //               );
-                        //             },
-                        //           text: 'Sign Up',
-                        //           style: const TextStyle(
-                        //             color: primaryColor2,
-                        //             fontSize: 18.0,
-                        //             fontWeight: FontWeight.w500,
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
+                        const SizedBox(height: 20.0),
+                        Align(
+                          alignment: Alignment.center,
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Don't have an account? ",
+                              style: const TextStyle(
+                                color: greyText,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              children: [
+                                TextSpan(
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      context
+                                          .read<AuthProvider>()
+                                          .setAuthState(AuthState.initial);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const RegisterScreen(),
+                                        ),
+                                      );
+                                    },
+                                  text: 'Sign Up',
+                                  style: const TextStyle(
+                                    color: primaryColor2,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 20.0)
                       ],
                     ),

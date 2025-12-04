@@ -1,8 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
-
-import 'package:cargorun_rider/screens/authentication/guarantor_screen.dart';
+import 'package:cargorun_rider/screens/authentication/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +10,6 @@ import '../../../constants/app_colors.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../widgets/app_button.dart';
 import '../../../widgets/app_textfields.dart';
-import '../../../widgets/page_widgets/appbar_widget.dart';
 
 class VehicleInfoScreen extends StatefulWidget {
   const VehicleInfoScreen({super.key});
@@ -176,6 +174,13 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                                       if (watch.authState ==
                                           AuthState.authenticated)
                                         {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const LoginScreen(),
+                                            ),
+                                          ),
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(

@@ -24,6 +24,15 @@ class SharedPrefs {
   String get lng => _sharedPrefs.getString('lng') ?? "";
   String get usedApp => _sharedPrefs.getString('usedApp')??"";
 
+  //Location Disclosure Screen onetime display
+  bool get hasSeenLocationDisclosure =>
+    _sharedPrefs.getBool('hasSeenLocationDisclosure') ?? false;
+
+  set hasSeenLocationDisclosure(bool value) {
+    _sharedPrefs.setBool('hasSeenLocationDisclosure', value);
+  }
+
+
   set token(String value) {
     _sharedPrefs.setString('token', value);
   }

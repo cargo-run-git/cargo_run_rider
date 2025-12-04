@@ -192,6 +192,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+      persistentFooterButtons: [
+        
+      ],
     );
   }
 }
